@@ -29,7 +29,7 @@ function Table(array) {
 
 Table.prototype.draw = function() {
   var minWidths = this.minWidths();
-  this.array.map(function(row, index) {
+  var output = this.array.map(function(row, index) {
     var isHeader = index === 0;
 
     row = new Row(row, minWidths, isHeader);
@@ -40,9 +40,9 @@ Table.prototype.draw = function() {
       rendered += "\n" + row.drawHeader(minWidths);
     }
 
-    console.log(rendered);
+    return rendered;
   });
-
+  return output.join('\n');
 };
 
 Table.prototype.minWidths = function() {
@@ -135,4 +135,4 @@ var array = [
 ];
 
 var table = new Table(array);
-table.draw();
+console.log(table.draw());
