@@ -14,87 +14,125 @@ Mont Blanc     4808 Italy/France
 Vaalserberg     323 Netherlands
 Denali         6168 United States
 Popocatepetl   5465 Mexico
+
+This challenge has been inspired by a project from: 
+
+Eloquent Javascript
+http://eloquentjavascript.net/index.html
+By Marijn Haverbeke
 ***/
 
-// Objects
-//Cell - x, y coordinates. Data value
-//Row - array of data values
-// To do - right justify integer values , add format below headers, refactor
-
-data = [['State', 'Capital', 'Population'],['Alabama', 'Little Rock', 1200000], ['California', 'Sacramento', 30000000]];
-
-function Cell() {
-
+function Table(array) {
+  this.array = array;
+  // this.minWidths = this.minWidths();
 }
 
-Cell.prototype.minWidth = function(value) {
-	if(isNumeric(value)) {
-		return value.toString().length;
-	}
-	else {	
-		return value.length;
-	}
+Table.prototype.draw = function() {
+  var minWidths = this.minWidths();
+  this.array.map(function(row, index) {
+    var isHeader = index === 0;
+
+    row = new Row(row, minWidths, isHeader);
+
+    var rendered = row.draw();
+
+    if(isHeader) {
+      rendered += "\n" + row.drawHeader(minWidths);
+    }
+
+    console.log(rendered);
+  });
+
 };
 
-Cell.prototype.draw = function(data, max) {
-	var string = data.toString();
-	var length = string.length;
-	var whitespace = ' ';
-	if(length < max) {
-		var difference = max - length;
+Table.prototype.minWidths = function() {
 
-		for(var i = 0; i < difference; i++) {
-			whitespace += ' ';
-		}
+  var mins = [];
+  //Combine all elements into flat array
+  var flat = [].concat.apply([], this.array);
+  var numCols = this.array[0].length;
 
-	}
-	string += whitespace;
-	return string;
+  for(var i = 0; i < numCols; i ++) {
+
+    var colValues = [];
+    for(var j = i; j < flat.length; j += numCols) {
+
+      var cell = new Cell(flat[j]);
+
+      colValues.push(cell.width());
+    }
+
+    var colMax = colValues.reduce(function(currentMax, next){
+      return Math.max(currentMax, next);
+    });
+
+    mins.push(colMax);
+  }
+  return mins;
 };
 
-function getColumnsMax(data) {
-	var columnsMax = [];
-	for(var i = 0; i < data.length; i ++) {
-		for(var j = 0; j < data[0].length; j ++) {
-			
-			if(typeof columnsMax[j] == 'undefined')
-			{
-				columnsMax[j] = 0;
-			}
+function Row(row_array, minWidths) {
 
-			var cell = new Cell();
-			var minWidth = cell.minWidth(data[i][j]);
-			if (minWidth > columnsMax[j]) {
-				columnsMax[j] = minWidth;
-			}
-		}
-	}
-	return columnsMax;
+  this.minWidths = minWidths;
+
+  this.cells = row_array.map(function(cell_contents){
+    return new Cell(cell_contents);
+  });
 }
 
-function drawTable(data) {
-	var columnsMax = getColumnsMax(data);
-	var result = '';
-	for(var i = 0; i < data.length; i++) {
-		for(var j = 0; j < data[0].length; j++) {
-			var cell = new Cell();
+Row.prototype.draw = function() {
 
-			result += cell.draw(data[i][j], columnsMax[j]);
+  var minWidths = this.minWidths;
+  var array_of_values = this.cells.map(function(cell, index) {
+    return cell.draw(minWidths[index]);
+  });
 
-			if(data[0].length - j == 1) {
-				result += '\n';
-			}
-		}
-		//Add header formatting
-		if(i === 0) {
-			result += '\n';
-		}
-	}
-	console.log(result);
+  return array_of_values.reduce(function(string, next) {
+    return string + " " + next;
+  });
+};
+
+Row.prototype.drawHeader = function(minWidths) {
+
+  var returnString = "";
+
+  for(var i = 0; i < minWidths.length; i++) {
+
+    for(var j = 0; j < minWidths[i]; j++) {
+      returnString += "-";
+    }
+
+    returnString += " ";
+  }
+  return returnString;
+};
+
+function Cell(cell_contents) {
+  this.value = cell_contents;
 }
 
-function isNumeric(n) {
-	return !isNaN(parseFloat(n)) && isFinite(n);
-}
+Cell.prototype.draw = function(minWidth) {
+  var difference = 0;
+  var whitespace = "";
 
-drawTable(data);
+  if(this.width() < minWidth) {
+    difference = minWidth - this.width();
+  }
+
+  for(var i = 0; i < difference; i ++) {
+    whitespace += " ";
+  }
+
+  return this.value + whitespace;
+};
+
+Cell.prototype.width = function() {
+  return this.value.toString().length;
+};
+
+var array = [
+  ['Name', 'Age', 'Hometown'],['George', 62, 'Missoula, MT'], ['Sam', 13, 'Calabasas, CA'], ['Jane', 51, 'Fremont, CA']
+];
+
+var table = new Table(array);
+table.draw();
