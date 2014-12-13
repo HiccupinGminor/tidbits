@@ -1,6 +1,8 @@
 #!/usr/bin/python
 import math
 
+# A naive solution to HackerRank's botclean challenge: https://www.hackerrank.com/challenges/botclean
+
 def findAllDirt(row_position, col_position, board):
     dirt_locations = {}
     
