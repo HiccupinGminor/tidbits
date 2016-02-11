@@ -1,4 +1,6 @@
 class Renderer:
+
+    # Takes in a list representation of a board and pretty prints it
     def render(self, board):
         print '------'
         for y in board:
@@ -20,6 +22,7 @@ class Game:
         self.winner = None
         self.currentPlayer = 'O'
 
+    # The game loop, manages all moves
     def start(self):
         while not self.isEnded:
             self._move()
@@ -29,6 +32,7 @@ class Game:
         else:
             print "Game Over. Cat's Game :("
 
+    # An individual player move and board update
     def _move(self):
         print self.currentPlayer + " player's turn:"
 
@@ -45,6 +49,7 @@ class Game:
         self._referee(x, y)
         self._switchPlayers()
 
+    # Determines whether the game is over and whether it has been won
     def _referee(self, x, y):
         if self.numMoves is 9:
             self.isEnded = True
@@ -53,12 +58,14 @@ class Game:
             self.isEnded = True
             self.winner = self.currentPlayer
 
+    # Alternates players
     def _switchPlayers(self):
         if self.currentPlayer is 'X':
             self.currentPlayer = 'O'
         else:
             self.currentPlayer = 'X'
 
+    # Validates that the move is in a playable position
     def _isValidMove(self, x, y):
         if (not 0 <= x <= 2) or (not 0 <= y <= 2):
             print "Not a valid position"
@@ -68,6 +75,7 @@ class Game:
             print "That space has already been played"
             return False
 
+    # Tic-tac-toe validator
     def _hasBeenWon(self, x, y):
         if len(set(self.board[y])) == 1:
             return True
